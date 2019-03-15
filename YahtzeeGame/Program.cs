@@ -13,6 +13,7 @@ namespace YahtzeeGame
 
             string winner;
 
+            //
             if (playerScore > computerScore || playerScore == computerScore)
             {
                 winner = "player";
@@ -27,6 +28,10 @@ namespace YahtzeeGame
             Console.ReadLine();
         }
 
+        /// <summary>
+        /// method that does all calculations for player and returns final score
+        /// </summary>
+        /// <returns></returns>
         public static int PlayerGameScore()
         {
             int initialAmountOfDice = 5;
@@ -44,7 +49,7 @@ namespace YahtzeeGame
 
             if (firstArrayOfNumbers.Length == initialAmountOfDice)
             {
-                getScore(firstArrayOfNumbers);
+                GetScore(firstArrayOfNumbers);
             }
 
             int secondRoundLength = initialAmountOfDice - firstArrayOfNumbers.Length;
@@ -73,14 +78,14 @@ namespace YahtzeeGame
 
             if (thirdRoundLength == 0)
             {
-                finalScore = getScore(secondArrayOfNumbers);
+                finalScore = GetScore(secondArrayOfNumbers);
             }
 
             return finalScore;
         }
 
         /// <summary>
-        ///
+        /// method that rolls dice and create  next round of available dice options
         /// </summary>
         /// <param name="roundLength"></param>
         /// <returns></returns>
@@ -98,11 +103,11 @@ namespace YahtzeeGame
         }
 
         /// <summary>
-        ///
+        /// returns score for specific dice round
         /// </summary>
         /// <param name="arrayOfNumbers"></param>
         /// <returns></returns>
-        public static int getScore(string[] arrayOfNumbers)
+        public static int GetScore(string[] arrayOfNumbers)
         {
             var groups = arrayOfNumbers.GroupBy(i => i).Select(i => new { Word = i.Key, Count = i.Count() });
 
@@ -121,7 +126,7 @@ namespace YahtzeeGame
         }
 
         /// <summary>
-        ///
+        /// collects all chosen dice by user to combine in one result and then call function to get score
         /// </summary>
         /// <param name="firstArrayOfNumbers"></param>
         /// <param name="secondArrayOfNumbers"></param>
@@ -140,16 +145,16 @@ namespace YahtzeeGame
                 var arr = secondArrayOfNumbers.Concat(lastArrayOfNumbers).ToArray();
                 var arr2 = arr.Concat(firstArrayOfNumbers).ToArray();
 
-                return getScore(arr2);
+                return GetScore(arr2);
             }
 
             var arr3 = firstArrayOfNumbers.Concat(lastArrayOfNumbers).ToArray();
 
-            return getScore(arr3);
+            return GetScore(arr3);
         }
 
         /// <summary>
-        ///
+        /// method to generate three round of dices and get final score
         /// </summary>
         public static int ComputerGameScore()
         {
@@ -168,13 +173,18 @@ namespace YahtzeeGame
             return totalScore.Max();
         }
 
+        /// <summary>
+        /// roll numbers three times and return score for specific round of dice
+        /// </summary>
+        /// <param name="rollNumbers"></param>
+        /// <returns></returns>
         public static int GetComputerTotalScore(string rollNumbers)
         {
             Console.Write($"Computers first roll of dice:  {rollNumbers} \n");
             Console.Read();
             string[] computerFirstDice = rollNumbers.Split(",");
 
-            return getScore(computerFirstDice);
+            return GetScore(computerFirstDice);
         }
     }
 }
