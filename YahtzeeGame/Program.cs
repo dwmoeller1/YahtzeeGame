@@ -8,28 +8,43 @@ namespace YahtzeeGame
     {
         private static void Main(string[] args)
         {
-            int var = PlayerGame();
-            Console.Write($"Your score is {var}");
+            int playerScore = PlayerGameScore();
+            int computerScore = ComputerGameScore();
+
+            string winner;
+
+            if (playerScore > computerScore || playerScore == computerScore)
+            {
+                winner = "player";
+            }
+            else
+            {
+                winner = "computer";
+            }
+
+            Console.Write($"Winner is {winner}");
 
             Console.ReadLine();
         }
 
-        public static int PlayerGame()
+        public static int PlayerGameScore()
         {
             int initialAmountOfDice = 5;
 
+            int finalScore = 0;
+
             //first round
-            int[] fiveDiceFirstRound = { 4, 6, 5, 2, 2 };
+            int[] fiveDiceFirstRound = { new Random().Next(1, 7), new Random().Next(1, 7), new Random().Next(1, 7), new Random().Next(1, 7), new Random().Next(1, 7) };
 
             string output = String.Join(", ", fiveDiceFirstRound);
-            Console.Write($"Choose dice you want to keep from following: {output} ");
+            Console.Write($"Choose dice you want to keep from following: {output} numbers: ");
 
             string chosenDice = Console.ReadLine();
             string[] firstArrayOfNumbers = chosenDice.Split(",");
 
             if (firstArrayOfNumbers.Length == initialAmountOfDice)
             {
-                return getScore(firstArrayOfNumbers);
+                getScore(firstArrayOfNumbers);
             }
 
             int secondRoundLength = initialAmountOfDice - firstArrayOfNumbers.Length;
@@ -38,13 +53,7 @@ namespace YahtzeeGame
 
             if (secondRoundLength == 1)
             {
-                int lastDiceNumber = new Random().Next(0, 7);
-                Console.Write($"Your last dice number is: {lastDiceNumber} ");
-                Console.Read();
-                string[] lastArrayOfNumbers = new string[1];
-                lastArrayOfNumbers[0] = lastDiceNumber.ToString();
-                var arr = firstArrayOfNumbers.Concat(lastArrayOfNumbers).ToArray();
-                return getScore(arr);
+                finalScore = CollectResults(firstArrayOfNumbers);
             }
 
             string output2 = RollDice(secondRoundLength);
@@ -56,9 +65,18 @@ namespace YahtzeeGame
 
             //third round
             int thirdRoundLength = secondRoundLength - secondArrayOfNumbers.Length;
-            string output3 = RollDice(thirdRoundLength);
 
-            return 0;
+            if (thirdRoundLength == 1)
+            {
+                finalScore = CollectResults(firstArrayOfNumbers, secondArrayOfNumbers);
+            }
+
+            if (thirdRoundLength == 0)
+            {
+                finalScore = getScore(secondArrayOfNumbers);
+            }
+
+            return finalScore;
         }
 
         /// <summary>
@@ -69,11 +87,11 @@ namespace YahtzeeGame
         public static string RollDice(int roundLength)
         {
             int[] nextRoundOfDice = new int[roundLength];
-            int randomNumber = new Random().Next(0, 7);
+            int randomNumber = new Random().Next(1, 7);
 
             for (int i = 0; i < roundLength; i++)
             {
-                int number = randomNumber;
+                int number = new Random().Next(1, 7);
                 nextRoundOfDice[i] = number;
             }
             return String.Join(", ", nextRoundOfDice);
@@ -86,16 +104,77 @@ namespace YahtzeeGame
         /// <returns></returns>
         public static int getScore(string[] arrayOfNumbers)
         {
-            var groups = arrayOfNumbers.GroupBy(v => v);
-            int[] maxAmount = new int[5];
-            int i = 0;
+            var groups = arrayOfNumbers.GroupBy(i => i).Select(i => new { Word = i.Key, Count = i.Count() });
+
+            List<int> maxAmount = new List<int>();
             foreach (var group in groups)
             {
-                maxAmount[i] = group.Count();
-                i++;
+                // Console.WriteLine($"Number: {group.Key} Count:{group.Count()}");
+                maxAmount.Add(group.Count);
             }
 
+            Console.Write($"Your score is {maxAmount.Max()}  \n");
+
+            Console.ReadLine();
+
             return maxAmount.Max();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="firstArrayOfNumbers"></param>
+        /// <param name="secondArrayOfNumbers"></param>
+        /// <returns></returns>
+        public static int CollectResults(string[] firstArrayOfNumbers, string[] secondArrayOfNumbers = null)
+        {
+            int lastDiceNumber = new Random().Next(1, 7);
+            Console.Write($"Your last dice number is: {lastDiceNumber}");
+            Console.Read();
+
+            string[] lastArrayOfNumbers = new string[1];
+            lastArrayOfNumbers[0] = lastDiceNumber.ToString();
+
+            if (secondArrayOfNumbers != null)
+            {
+                var arr = secondArrayOfNumbers.Concat(lastArrayOfNumbers).ToArray();
+                var arr2 = arr.Concat(firstArrayOfNumbers).ToArray();
+
+                return getScore(arr2);
+            }
+
+            var arr3 = firstArrayOfNumbers.Concat(lastArrayOfNumbers).ToArray();
+
+            return getScore(arr3);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public static int ComputerGameScore()
+        {
+            int[] totalScore = new int[3];
+
+            for (int i = 0; i < totalScore.Length; i++)
+            {
+                string roll = RollDice(5);
+                totalScore[i] = GetComputerTotalScore(roll);
+            }
+
+            Console.Write($"Computer's score is {totalScore.Max()}  \n");
+
+            Console.ReadLine();
+
+            return totalScore.Max();
+        }
+
+        public static int GetComputerTotalScore(string rollNumbers)
+        {
+            Console.Write($"Computers first roll of dice:  {rollNumbers} \n");
+            Console.Read();
+            string[] computerFirstDice = rollNumbers.Split(",");
+
+            return getScore(computerFirstDice);
         }
     }
 }
