@@ -124,18 +124,9 @@ namespace YahtzeeGame
         /// <returns></returns>
         public static int GetScore(string[] arrayOfNumbers)
         {
-            //var groups = arrayOfNumbers.GroupBy(i => i).Select(i => new { Word = i.Key, Count = i.Count() });
-
-            //List<int> maxAmount = new List<int>();
-            //foreach (var group in groups)
-            //{
-            //    // Console.WriteLine($"Number: {group.Key} Count:{group.Count()}");
-            //    maxAmount.Add(group.Count);
-            //}
             int maxAmount = arrayOfNumbers.GroupBy(i => i).Max(group => group.Count());
 
             Console.Write($"Your score is {maxAmount}  \n");
-
             Console.ReadLine();
 
             return maxAmount;
