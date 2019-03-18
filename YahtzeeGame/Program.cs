@@ -8,13 +8,12 @@ namespace YahtzeeGame
     {
         private static void Main(string[] args)
         {
-            int playerScore = PlayerGameScore();
-            int computerScore = ComputerGameScore();
+            int playerScore = GetPlayerGameScore();
+            int computerScore = GetComputerGameScore();
 
             string winner;
 
-            //
-            if (playerScore > computerScore || playerScore == computerScore)
+            if (playerScore >= computerScore)
             {
                 winner = "player";
             }
@@ -32,20 +31,18 @@ namespace YahtzeeGame
         /// method that does all calculations for player and returns final score
         /// </summary>
         /// <returns></returns>
-        public static int PlayerGameScore()
+        public static int GetPlayerGameScore()
         {
             int initialAmountOfDice = 5;
-
             int finalScore = 0;
 
-            //first round
             int[] fiveDiceFirstRound = { new Random().Next(1, 7), new Random().Next(1, 7), new Random().Next(1, 7), new Random().Next(1, 7), new Random().Next(1, 7) };
 
             string output = String.Join(", ", fiveDiceFirstRound);
             Console.Write($"Choose dice you want to keep from following: {output} numbers: ");
 
             string chosenDice = Console.ReadLine();
-            string[] firstArrayOfNumbers = chosenDice.Split(",");
+            string[] firstArrayOfNumbers = chosenDice.Split(", ");
 
             if (firstArrayOfNumbers.Length == initialAmountOfDice)
             {
@@ -53,8 +50,6 @@ namespace YahtzeeGame
             }
 
             int secondRoundLength = initialAmountOfDice - firstArrayOfNumbers.Length;
-
-            //second round
 
             if (secondRoundLength == 1)
             {
@@ -64,21 +59,41 @@ namespace YahtzeeGame
             string output2 = RollDice(secondRoundLength);
             Console.Write($"Choose dice you want to keep from following {output2} numbers: ");
 
-            // add check to make sure those numbers are in the array
             string chosenDiceTwo = Console.ReadLine();
-            string[] secondArrayOfNumbers = chosenDiceTwo.Split(",");
+            string[] secondArrayOfNumbers = chosenDiceTwo.Split(", ");
 
-            //third round
             int thirdRoundLength = secondRoundLength - secondArrayOfNumbers.Length;
-
-            if (thirdRoundLength == 1)
-            {
-                finalScore = CollectResults(firstArrayOfNumbers, secondArrayOfNumbers);
-            }
 
             if (thirdRoundLength == 0)
             {
                 finalScore = GetScore(secondArrayOfNumbers);
+                return finalScore;
+            }
+
+            if (thirdRoundLength == 1)
+            {
+                finalScore = CollectResults(firstArrayOfNumbers, secondArrayOfNumbers);
+                return finalScore;
+            }
+
+            string output4 = RollDice(thirdRoundLength);
+            Console.Write($"Choose dice you want to keep from following {output4} numbers: ");
+
+            string chosenDiceThree = Console.ReadLine();
+            string[] thirdArrayOfNumbers = chosenDiceThree.Split(", ");
+
+            int fourthRoundLength = thirdRoundLength - thirdArrayOfNumbers.Length;
+
+            if (fourthRoundLength == 0)
+            {
+                finalScore = GetScore(secondArrayOfNumbers);
+                return finalScore;
+            }
+
+            if (fourthRoundLength == 1)
+            {
+                finalScore = CollectResults(firstArrayOfNumbers, secondArrayOfNumbers, thirdArrayOfNumbers);
+                return finalScore;
             }
 
             return finalScore;
@@ -109,29 +124,31 @@ namespace YahtzeeGame
         /// <returns></returns>
         public static int GetScore(string[] arrayOfNumbers)
         {
-            var groups = arrayOfNumbers.GroupBy(i => i).Select(i => new { Word = i.Key, Count = i.Count() });
+            //var groups = arrayOfNumbers.GroupBy(i => i).Select(i => new { Word = i.Key, Count = i.Count() });
 
-            List<int> maxAmount = new List<int>();
-            foreach (var group in groups)
-            {
-                // Console.WriteLine($"Number: {group.Key} Count:{group.Count()}");
-                maxAmount.Add(group.Count);
-            }
+            //List<int> maxAmount = new List<int>();
+            //foreach (var group in groups)
+            //{
+            //    // Console.WriteLine($"Number: {group.Key} Count:{group.Count()}");
+            //    maxAmount.Add(group.Count);
+            //}
+            int maxAmount = arrayOfNumbers.GroupBy(i => i).Max(group => group.Count());
 
-            Console.Write($"Your score is {maxAmount.Max()}  \n");
+            Console.Write($"Your score is {maxAmount}  \n");
 
             Console.ReadLine();
 
-            return maxAmount.Max();
+            return maxAmount;
         }
 
         /// <summary>
-        /// collects all chosen dice by user to combine in one result and then call function to get score
+        ///
         /// </summary>
         /// <param name="firstArrayOfNumbers"></param>
         /// <param name="secondArrayOfNumbers"></param>
+        /// <param name="thirdArrayOfNumbers"></param>
         /// <returns></returns>
-        public static int CollectResults(string[] firstArrayOfNumbers, string[] secondArrayOfNumbers = null)
+        public static int CollectResults(string[] firstArrayOfNumbers, string[] secondArrayOfNumbers = null, string[] thirdArrayOfNumbers = null)
         {
             int lastDiceNumber = new Random().Next(1, 7);
             Console.Write($"Your last dice number is: {lastDiceNumber}");
@@ -140,12 +157,21 @@ namespace YahtzeeGame
             string[] lastArrayOfNumbers = new string[1];
             lastArrayOfNumbers[0] = lastDiceNumber.ToString();
 
-            if (secondArrayOfNumbers != null)
+            if (secondArrayOfNumbers != null && thirdArrayOfNumbers == null)
             {
                 var arr = secondArrayOfNumbers.Concat(lastArrayOfNumbers).ToArray();
                 var arr2 = arr.Concat(firstArrayOfNumbers).ToArray();
 
                 return GetScore(arr2);
+            }
+
+            if (thirdArrayOfNumbers != null)
+            {
+                var arr = secondArrayOfNumbers.Concat(lastArrayOfNumbers).ToArray();
+                var arr2 = arr.Concat(firstArrayOfNumbers).ToArray();
+                var arr4 = arr2.Concat(thirdArrayOfNumbers).ToArray();
+
+                return GetScore(arr4);
             }
 
             var arr3 = firstArrayOfNumbers.Concat(lastArrayOfNumbers).ToArray();
@@ -156,7 +182,7 @@ namespace YahtzeeGame
         /// <summary>
         /// method to generate three round of dices and get final score
         /// </summary>
-        public static int ComputerGameScore()
+        public static int GetComputerGameScore()
         {
             int[] totalScore = new int[3];
 
@@ -182,7 +208,7 @@ namespace YahtzeeGame
         {
             Console.Write($"Computers first roll of dice:  {rollNumbers} \n");
             Console.Read();
-            string[] computerFirstDice = rollNumbers.Split(",");
+            string[] computerFirstDice = rollNumbers.Split(", ");
 
             return GetScore(computerFirstDice);
         }
